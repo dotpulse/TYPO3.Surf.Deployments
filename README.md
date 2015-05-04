@@ -18,7 +18,7 @@ TYPO3 Surf Deployment example scripts
   * `$hostname`
   * `$sitePackageKey`
   * `$copyPackages`
-* create a symlink from '/var/www/virtual/[username]/html' to '[deploymentPath]/release/current/Web'
+* point the webrequests to '[deploymentPath]/release/current/Web'
 * execute `./flow surf:deploy YourDesiredDeployment.php`
 
 ## Example Uberspace Configuration..
@@ -33,7 +33,33 @@ $copyPackages		= array(
 	'Sites'			=> array( $sitePackageKey )
 );
 ```
+Create a folder /var/www/virtual/[dotusr]/[dotpulse.ch].surf,
+and a symlink from '/var/www/virtual/[dotusr]/html' to '/var/www/virtual/[dotusr]/[dotpulse.ch].surf/release/current/Web'.
+
+## Troubleshooting
+
+### Connection timed out
+
+#### on Debian execute:
+```
+echo "ControlMaster auto
+ControlPath /tmp/ssh_mux_%h_%p_%r
+ControlPersist 600" | sudo tee -a /etc/ssh/ssh_config
+/etc/init.d/ssh restart;
+```
+
+#### on OS X add to the file '/private/etc/sshd_config' this:
+```
+ControlMaster auto
+ControlPath /tmp/ssh_mux_%h_%p_%r
+ControlPersist 600
+```
+and restart the SSH: `launchctl stop com.openssh.sshd; launchctl start com.openssh.sshd`
 
 ## What's next..
 
 * adding examples for other servers
+
+## Thanks to..
+
+[beelbrecht](https://gist.github.com/beelbrecht), [karsten](http://karsten.dambekalns.de/blog/using-ssh-controlmaster-with-typo3-surf.html) and [mario](https://github.com/mrimann).
