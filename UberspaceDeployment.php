@@ -47,7 +47,7 @@ foreach ($copyPackages as $folder => $packages) {
 }
 $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array(
 	'command' => 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/Packages/;'
-				 . 'cp -r '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/Packages/;'
+				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/;'
 				 . 'rsync -a --exclude=index.php --exclude=_Resources '.FLOW_PATH_ROOT.'Web/* '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/Web/;'
 				 . $addPackages
 ));
