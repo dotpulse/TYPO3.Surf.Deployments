@@ -19,7 +19,7 @@ TYPO3 Surf Deployment example scripts
   * `$sitePackageKey`
   * `$copyPackages`
 * point the webrequests to '[deploymentPath]/release/current/Web'
-* execute `./flow surf:deploy YourDesiredDeployment.php`
+* execute `./flow surf:deploy YourDesiredDeployment`
 
 ## Example Uberspace Configuration..
 
