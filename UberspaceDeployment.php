@@ -1,22 +1,21 @@
 <?php
 
 
-$domain				= '';		// domain.com
-$username			= '';		// usrnam
-$password			= NULL;		// don't use it
-$hostname			= '';		// e.g. server.uberspace.de not username.server.uberspace.de
-$sitePackageKey		= '';		// MyCustom.ThemePackage
-$setFlowRootpath	= false;	// enable if you get internal server erros
-$copyPackages		= array(	// the packages that are not managed by composer
-	'Plugins'		=> array(  ),
-	'Sites'			=> array( $sitePackageKey )
+$domain          = '';		// domain.com
+$username        = '';		// username
+$hostname        = '';		// e.g. server.uberspace.de not username.server.uberspace.de
+$sitePackageKey  = '';		// Vendor.ThemePackage
+$setFlowRootpath = false;	// enable if you get internal server erros
+$copyPackages    = array(	// the packages that are not managed by composer
+	'Plugins' => array(  ),
+	'Sites'   => array( $sitePackageKey )
 );
 
 
 // ------------------------------------------------------------------
 
-$domain				= $domain.'.surf';
-$projectKey			= preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
+$domain     = $domain.'.surf';
+$projectKey = preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
 
 // Create a simple workflow based on the predefined 'SimpleWorkflow'.
 $workflow = new \TYPO3\Surf\Domain\Model\SimpleWorkflow();
@@ -66,9 +65,7 @@ $deployment->setWorkflow($workflow);
 // Create and configure your node / nodes (host / hosts).
 $node = new \TYPO3\Surf\Domain\Model\Node('uberspace');
 $node->setHostname($username.'.'.$hostname);
-if ( !is_null($password) ) {
-	$node->setOption('password', $password);
-}
+
 $node->setOption('username', $username);
 
 // Define your application and add it to your node.
