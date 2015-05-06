@@ -1,14 +1,14 @@
 <?php
 
-$domain				= '';		// domain.com
-$deploymentFolder	= $domain;	// deployment folder in /home/www-data/
-$username			= '';		// usrnam
-$hostname			= '';		// e.g. server.uberspace.de not username.server.uberspace.de
-$sitePackageKey		= '';		// MyCustom.ThemePackage
-$setFlowRootpath	= false;	// enable if you get internal server erros
-$copyPackages		= array(	// the packages that are not managed by composer
-	'Plugins'		=> array(  ),
-	'Sites'			=> array( $sitePackageKey )
+$domain            = '';		// domain.com
+$deploymentFolder  = $domain;	// deployment folder in /home/www-data/
+$username          = '';		// username
+$hostname          = '';		// e.g. server.uberspace.de not username.server.uberspace.de
+$sitePackageKey    = '';		// Vendor.ThemePackage
+$setFlowRootpath   = false;	// enable if you get internal server erros
+$copyPackages      = array(	// the packages that are not managed by composer
+	'Plugins' => array(  ),
+	'Sites'   => array( $sitePackageKey )
 );
 
 
@@ -52,6 +52,15 @@ $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array
 				 . $addPackages
 ));
 $workflow->beforeTask('typo3.surf:transfer:rsync', $projectKey.':injectfiles');
+
+// copy production settings.yaml to shared folder
+$workflow->defineTask($projectKey.':copyProductionSettings', 'typo3.surf:shell', array(
+	'command' => 'if [ -f {releasePath}/Configuration/Production/Settings.yaml ]; then '
+				 . 'mkdir -p {sharedPath}/Configuration/Production/;'
+				 . 'cp -Lr {releasePath}/Configuration/Production/Settings.yaml {sharedPath}/Configuration/Production/;'
+				 . ' fi'
+));
+$workflow->afterTask('typo3.surf:transfer:rsync', $projectKey.':copyProductionSettings');
 
 // Kill running PHP processes.
 $workflow->defineTask($projectKey.':killphp', 'typo3.surf:shell', array(

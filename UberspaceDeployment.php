@@ -53,6 +53,15 @@ $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array
 ));
 $workflow->beforeTask('typo3.surf:transfer:rsync', $projectKey.':injectfiles');
 
+// copy production settings.yaml to shared folder
+$workflow->defineTask($projectKey.':copyProductionSettings', 'typo3.surf:shell', array(
+	'command' => 'if [ -f {releasePath}/Configuration/Production/Settings.yaml ]; then '
+				 . 'mkdir -p {sharedPath}/Configuration/Production/;'
+				 . 'cp -Lr {releasePath}/Configuration/Production/Settings.yaml {sharedPath}/Configuration/Production/;'
+				 . ' fi'
+));
+$workflow->afterTask('typo3.surf:transfer:rsync', $projectKey.':copyProductionSettings');
+
 // Kill running PHP processes.
 $workflow->defineTask($projectKey.':killphp', 'typo3.surf:shell', array(
 	'command' => 'killall -q php-cgi || true;'
