@@ -1,12 +1,12 @@
 <?php
 
-$domain            = '';		// domain.com
-$deploymentFolder  = $domain;	// deployment folder in /home/www-data/
-$username          = '';		// username
-$hostname          = '';		// e.g. server.uberspace.de not username.server.uberspace.de
-$sitePackageKey    = '';		// Vendor.ThemePackage
-$setFlowRootpath   = false;	// enable if you get internal server erros
-$copyPackages      = array(	// the packages that are not managed by composer
+$domain            = '';      // domain.com
+$deploymentFolder  = $domain; // deployment folder in /home/www-data/
+$username          = '';      // username
+$hostname          = '';      // e.g. server.nine.ch
+$sitePackageKey    = '';      // Vendor.ThemePackage
+$setFlowRootpath   = false;   // enable if you get internal server erros
+$copyPackages      = array(   // the packages that are not managed by composer
 	'Plugins' => array(  ),
 	'Sites'   => array( $sitePackageKey )
 );
@@ -14,8 +14,8 @@ $copyPackages      = array(	// the packages that are not managed by composer
 
 // ------------------------------------------------------------------
 
-$domain				= $domain.'.surf';
-$projectKey			= preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
+$domain    = $domain.'.surf';
+$projectKey = preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
 
 // Create a simple workflow based on the predefined 'SimpleWorkflow'.
 $workflow = new \TYPO3\Surf\Domain\Model\SimpleWorkflow();
