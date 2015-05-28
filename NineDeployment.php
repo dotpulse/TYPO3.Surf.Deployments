@@ -21,6 +21,12 @@ $projectKey = preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
 $workflow = new \TYPO3\Surf\Domain\Model\SimpleWorkflow();
 $workflow->setEnableRollback(TRUE);
 
+// Workaround: If you run "migrate" directly, you get an error. After "help" everything works. Might be a bug in TYPO3 Surf
+$workflow->defineTask($projectKey.':runHelp', 'typo3.surf:shell', array(
+	'command' => '{releasePath}/flow help'
+));
+$workflow->beforeTask('typo3.surf:typo3:flow:migrate', $projectKey.':runHelp');
+
 // Create and configure a simple shell task to add the FLOW_CONTEXT and FLOW_ROOTPATH to your .htaccess file
 $workflow->defineTask($projectKey.':editHtaccess', 'typo3.surf:shell', array(
 	'command' => 'echo -e "\n'
