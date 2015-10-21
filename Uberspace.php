@@ -1,6 +1,5 @@
 <?php
 
-
 $domain          = '';		// domain.com
 $username        = '';		// username
 $hostname        = '';		// e.g. server.uberspace.de not username.server.uberspace.de
@@ -11,7 +10,6 @@ $copyPackages    = array(	// the packages that are not managed by composer
 	'Sites'   => array( $sitePackageKey )
 );
 
-
 // ------------------------------------------------------------------
 
 $domain     = $domain.'.surf';
@@ -20,6 +18,20 @@ $projectKey = preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
 // Create a simple workflow based on the predefined 'SimpleWorkflow'.
 $workflow = new \TYPO3\Surf\Domain\Model\SimpleWorkflow();
 $workflow->setEnableRollback(TRUE);
+
+// Workaround: If you run "migrate" directly, you get an error. After "help" everything works. Might be a bug in TYPO3 Surf
+$workflow->defineTask($projectKey.':runHelp', 'typo3.surf:shell', array(
+	'command' => '{releasePath}/flow help'
+));
+$workflow->beforeTask('typo3.surf:typo3:flow:migrate', $projectKey.':runHelp');
+
+// Workaround: Publish images in _Resources/Persistent folder
+$workflow->defineTask($projectKey.':publishImages', 'typo3.surf:shell', array(
+	'command' => 'FLOW_CONTEXT=Production {releasePath}/flow media:clearthumbnails',
+	'command' => 'FLOW_CONTEXT=Production {releasePath}/flow resource:clean',
+	'command' => 'FLOW_CONTEXT=Production {releasePath}/flow resource:publish'
+));
+$workflow->afterTask('typo3.surf:typo3:flow:migrate', $projectKey.':publishImages');
 
 // Create and configure a simple shell task to add the FLOW_CONTEXT and FLOW_ROOTPATH to your .htaccess file
 $workflow->defineTask($projectKey.':editHtaccess', 'typo3.surf:shell', array(
@@ -30,25 +42,28 @@ $workflow->defineTask($projectKey.':editHtaccess', 'typo3.surf:shell', array(
 ));
 $workflow->addTask($projectKey.':editHtaccess', 'finalize');
 
-
 // Change composer.json to our own and copy some unpacked sources.
 $workflow->defineTask($projectKey.':fixcomposer', 'typo3.surf:localshell', array(
-	'command' => 'cp '.FLOW_PATH_ROOT.'composer.* '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/;'
+	'command' => 'cp '.FLOW_PATH_ROOT.'composer.* '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/;'
 ));
 $workflow->afterTask('typo3.surf:package:git', $projectKey.':fixcomposer');
 
 // Add missing files that are not managed by composer.
 $addPackages = '';
 foreach ($copyPackages as $folder => $packages) {
-	$addPackages .= 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/Packages/'.$folder.'/;';
+	$addPackages .= 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Packages/'.$folder.'/;';
 	foreach ($packages as $package) {
-		$addPackages .= 'cp -r '.FLOW_PATH_ROOT.'Packages/'.$folder.'/'.$package.' '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/Packages/'.$folder.'/;';
+		$addPackages .= 'cp -r '.FLOW_PATH_ROOT.'Packages/'.$folder.'/'.$package.' '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Packages/'.$folder.'/;';
 	}
 }
 $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array(
-	'command' => 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/Packages/;'
-				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/;'
-				 . 'rsync -a --exclude=index.php --exclude=_Resources '.FLOW_PATH_ROOT.'Web/* '.FLOW_PATH_ROOT.'Data/Surf/UberspaceDeployment/'.$domain.'/Web/;'
+	'command' => 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/;'
+				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Packages/;'
+				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/;'
+				 . 'cp -f '.FLOW_PATH_ROOT.'Web/.htaccess '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/.htaccess;'
+				 . 'cp -f '.FLOW_PATH_ROOT.'Web/robots.txt '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/robots.txt;'
+				 . 'rsync -a --ignore-errors '.FLOW_PATH_ROOT.'Packages/Sites/'.$sitePackageKey.'/Resources/Private/WebRoot/* '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/;'
+				 . 'rsync -a --exclude=index.php --exclude=_Resources --exclude=robots.txt '.FLOW_PATH_ROOT.'Web/* '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Web/;'
 				 . $addPackages
 ));
 $workflow->beforeTask('typo3.surf:transfer:rsync', $projectKey.':injectfiles');
@@ -74,7 +89,6 @@ $deployment->setWorkflow($workflow);
 // Create and configure your node / nodes (host / hosts).
 $node = new \TYPO3\Surf\Domain\Model\Node('uberspace');
 $node->setHostname($username.'.'.$hostname);
-
 $node->setOption('username', $username);
 
 // Define your application and add it to your node.
