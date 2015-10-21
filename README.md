@@ -29,8 +29,8 @@ $username       = 'dotusr';
 $hostname       = 'regulus.uberspace.de';
 $sitePackageKey = 'Dotpulse.Theme';
 $copyPackages   = array(
-	'Plugins'     => array( 'Dotpulse.Base' ),
-	'Sites'       => array( $sitePackageKey )
+    'Plugins'   => array( 'Dotpulse.Base' ),
+    'Sites'     => array( $sitePackageKey )
 );
 ```
 Create a folder /var/www/virtual/[dotusr]/[dotpulse.ch].surf,
