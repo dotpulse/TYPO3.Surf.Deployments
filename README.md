@@ -24,13 +24,13 @@ TYPO3 Surf Deployment example scripts
 ## Example Uberspace Configuration..
 
 ```php
-$domain				= 'dotpulse.ch';
-$username			= 'dotusr';
-$hostname			= 'regulus.uberspace.de';
-$sitePackageKey		= 'Dotpulse.Theme';
-$copyPackages		= array(
-	'Plugins'		=> array( 'Dotpulse.Base' ),
-	'Sites'			=> array( $sitePackageKey )
+$domain         = 'dotpulse.ch';
+$username       = 'dotusr';
+$hostname       = 'regulus.uberspace.de';
+$sitePackageKey = 'Dotpulse.Theme';
+$copyPackages   = array(
+	'Plugins'     => array( 'Dotpulse.Base' ),
+	'Sites'       => array( $sitePackageKey )
 );
 ```
 Create a folder /var/www/virtual/[dotusr]/[dotpulse.ch].surf,
