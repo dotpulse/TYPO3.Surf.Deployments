@@ -57,7 +57,8 @@ foreach ($copyPackages as $folder => $packages) {
 	}
 }
 $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array(
-	'command' => 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/;'
+	'command' => 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/Plugins;'
+				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/Sites;'
 				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Packages/;'
 				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/;'
 				 . 'cp -f '.FLOW_PATH_ROOT.'Web/.htaccess '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/.htaccess;'
