@@ -1,11 +1,12 @@
 <?php
 
-$domain          = '';      // domain.com
-$username        = '';      // username
-$hostname        = '';      // e.g. server.nine.ch
-$sitePackageKey  = '';      // Vendor.ThemePackage
-$setFlowRootpath = false;   // enable if you get internal server erros
-$copyPackages    = array(   // the packages that are not managed by composer
+$domain           = '';      // domain.com
+$username         = '';      // username
+$deploymentFolder = $domain; // deployment folder in /home/www-data/
+$hostname         = '';      // e.g. server.nine.ch
+$sitePackageKey   = '';      // Vendor.ThemePackage
+$setFlowRootpath  = false;   // enable if you get internal server erros
+$copyPackages     = array(   // the packages that are not managed by composer
 	'Plugins' => array(  ),
 	'Sites'   => array( $sitePackageKey )
 );
@@ -15,7 +16,7 @@ $copyPackages    = array(   // the packages that are not managed by composer
 // At nine.ch: sudo nine-manage-vhosts virtual-host update [domain] --webroot=/home/www-data/[deploymentFolder]/release/current/Web
 
 $deploymentName = 'Nine';
-$deploymentPath = '/home/www-data/'.$domain;
+$deploymentPath = '/home/www-data/'.$deploymentFolder;
 $domain         = $domain.'.surf';
 $projectKey     = preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
 
