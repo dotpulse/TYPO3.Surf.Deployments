@@ -1,20 +1,25 @@
 <?php
 
-$domain            = '';      // domain.com
-$deploymentFolder  = $domain; // deployment folder in /home/www-data/
-$username          = '';      // username
-$hostname          = '';      // e.g. server.nine.ch
-$sitePackageKey    = '';      // Vendor.ThemePackage
-$setFlowRootpath   = false;   // enable if you get internal server erros
-$copyPackages      = array(   // the packages that are not managed by composer
+$domain          = '';      // domain.com
+$username        = '';      // username
+$hostname        = '';      // e.g. server.nine.ch
+$sitePackageKey  = '';      // Vendor.ThemePackage
+$setFlowRootpath = false;   // enable if you get internal server erros
+$copyPackages    = array(   // the packages that are not managed by composer
 	'Plugins' => array(  ),
 	'Sites'   => array( $sitePackageKey )
 );
 
 // ------------------------------------------------------------------
+// At uberspace: create a symlink from '/var/www/virtual/[user]/html' to '[deploymentPath]/release/current/Web'
+// At nine.ch: sudo nine-manage-vhosts virtual-host update [domain] --webroot=/home/www-data/[deploymentFolder]/release/current/Web
 
-$domain     = $domain.'.surf';
-$projectKey = preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
+$deploymentName = 'Nine';
+$deploymentPath = '/home/www-data/'.$domain;
+$domain         = $domain.'.surf';
+$projectKey     = preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
+
+// ------------------------------------------------------------------
 
 // Create a simple workflow based on the predefined 'SimpleWorkflow'.
 $workflow = new \TYPO3\Surf\Domain\Model\SimpleWorkflow();
@@ -45,27 +50,27 @@ $workflow->addTask($projectKey.':editHtaccess', 'finalize');
 
 // Change composer.json to our own and copy some unpacked sources.
 $workflow->defineTask($projectKey.':fixcomposer', 'typo3.surf:localshell', array(
-	'command' => 'cp '.FLOW_PATH_ROOT.'composer.* '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/;'
+	'command' => 'cp '.FLOW_PATH_ROOT.'composer.* '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/;'
 ));
 $workflow->afterTask('typo3.surf:package:git', $projectKey.':fixcomposer');
 
 // Add missing files that are not managed by composer.
 $addPackages = '';
 foreach ($copyPackages as $folder => $packages) {
-	$addPackages .= 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/'.$folder.'/;';
+	$addPackages .= 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/'.$folder.'/;';
 	foreach ($packages as $package) {
-		$addPackages .= 'cp -r '.FLOW_PATH_ROOT.'Packages/'.$folder.'/'.$package.' '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/'.$folder.'/;';
+		$addPackages .= 'cp -r '.FLOW_PATH_ROOT.'Packages/'.$folder.'/'.$package.' '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/'.$folder.'/;';
 	}
 }
 $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array(
-	'command' => 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/Plugins;'
-				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/Sites;'
-				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/;'
-				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/;'
-				 . 'cp -f '.FLOW_PATH_ROOT.'Web/.htaccess '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/.htaccess;'
-				 . 'cp -f '.FLOW_PATH_ROOT.'Web/robots.txt '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/robots.txt;'
-				 . 'rsync -a --ignore-errors '.FLOW_PATH_ROOT.'Packages/Sites/'.$sitePackageKey.'/Resources/Private/WebRoot/* '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/;'
-				 . 'rsync -a --exclude=index.php --exclude=_Resources --exclude=robots.txt '.FLOW_PATH_ROOT.'Web/* '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/;'
+	'command' => 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Plugins;'
+				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Sites;'
+				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/;'
+				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/;'
+				 . 'cp -f '.FLOW_PATH_ROOT.'Web/.htaccess '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/.htaccess;'
+				 . 'cp -f '.FLOW_PATH_ROOT.'Web/robots.txt '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/robots.txt;'
+				 . 'rsync -a --ignore-errors '.FLOW_PATH_ROOT.'Packages/Sites/'.$sitePackageKey.'/Resources/Private/WebRoot/* '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
+				 . 'rsync -a --exclude=index.php --exclude=_Resources --exclude=robots.txt '.FLOW_PATH_ROOT.'Web/* '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
 				 . $addPackages
 ));
 $workflow->beforeTask('typo3.surf:transfer:rsync', $projectKey.':injectfiles');
@@ -89,14 +94,13 @@ $workflow->afterTask('typo3.surf:symlinkrelease', $projectKey.':killphp');
 $deployment->setWorkflow($workflow);
 
 // Create and configure your node / nodes (host / hosts).
-$node = new \TYPO3\Surf\Domain\Model\Node('nine');
+$node = new \TYPO3\Surf\Domain\Model\Node(strtolower($deploymentName));
 $node->setHostname($hostname);
 $node->setOption('username', $username);
 
 // Define your application and add it to your node.
 $application = new \TYPO3\Surf\Application\TYPO3\Flow($domain);
-// At nine.ch: sudo nine-manage-vhosts virtual-host update [domain] --webroot=/home/www-data/[deploymentFolder]/release/current/Web
-$application->setDeploymentPath('/home/www-data/'.$deploymentFolder);
+$application->setDeploymentPath($deploymentPath);
 $application->setOption('repositoryUrl', 'https://git.typo3.org/Neos/Distributions/Base.git');
 $application->setOption('composerCommandPath', 'composer');
 $application->setOption('keepReleases', '5');
@@ -110,7 +114,7 @@ $application->addNode($node);
 
 // remove unused task.
 $deployment->onInitialize(function() use ($workflow, $application) {
-    $workflow->removeTask('typo3.surf:typo3:flow:setfilepermissions');
+	$workflow->removeTask('typo3.surf:typo3:flow:setfilepermissions');
 });
 
 // Add the application to your deployment.
