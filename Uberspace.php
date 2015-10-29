@@ -57,13 +57,13 @@ foreach ($copyPackages as $folder => $packages) {
 	}
 }
 $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array(
-	'command' => 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/Plugins;'
-				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Packages/Sites;'
+	'command' => 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Packages/Plugins;'
+				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Packages/Sites;'
 				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Packages/;'
 				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/;'
-				 . 'cp -f '.FLOW_PATH_ROOT.'Web/.htaccess '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/.htaccess;'
-				 . 'cp -f '.FLOW_PATH_ROOT.'Web/robots.txt '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/robots.txt;'
-				 . 'rsync -a --ignore-errors '.FLOW_PATH_ROOT.'Packages/Sites/'.$sitePackageKey.'/Resources/Private/WebRoot/* '.FLOW_PATH_ROOT.'Data/Surf/Nine/'.$domain.'/Web/;'
+				 . 'cp -f '.FLOW_PATH_ROOT.'Web/.htaccess '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Web/.htaccess;'
+				 . 'cp -f '.FLOW_PATH_ROOT.'Web/robots.txt '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Web/robots.txt;'
+				 . 'rsync -a --ignore-errors '.FLOW_PATH_ROOT.'Packages/Sites/'.$sitePackageKey.'/Resources/Private/WebRoot/* '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Web/;'
 				 . 'rsync -a --exclude=index.php --exclude=_Resources --exclude=robots.txt '.FLOW_PATH_ROOT.'Web/* '.FLOW_PATH_ROOT.'Data/Surf/Uberspace/'.$domain.'/Web/;'
 				 . $addPackages
 ));
