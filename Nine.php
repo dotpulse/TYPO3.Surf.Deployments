@@ -56,15 +56,18 @@ $workflow->defineTask($projectKey.':fixcomposer', 'typo3.surf:localshell', array
 $workflow->afterTask('typo3.surf:package:git', $projectKey.':fixcomposer');
 
 // Add missing files that are not managed by composer.
+$removePackages = '';
 $addPackages = '';
 foreach ($copyPackages as $folder => $packages) {
 	$addPackages .= 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/'.$folder.'/;';
 	foreach ($packages as $package) {
+		$removePackages .= 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/'.$folder.'/'.$package.';';
 		$addPackages .= 'cp -r '.FLOW_PATH_ROOT.'Packages/'.$folder.'/'.$package.' '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/'.$folder.'/;';
 	}
 }
 $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array(
-	'command' => 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Plugins;'
+	'command' => $removePackages
+				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Plugins;'
 				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Sites;'
 				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/;'
 				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/;'
@@ -84,6 +87,20 @@ $workflow->defineTask($projectKey.':copyProductionSettings', 'typo3.surf:shell',
 				 . ' fi'
 ));
 $workflow->afterTask('typo3.surf:transfer:rsync', $projectKey.':copyProductionSettings');
+
+// Repairpermissions
+$workflow->defineTask($projectKey.':repairpermissions', 'typo3.surf:shell', array(
+	'command' => 'chown -R '.$username.':'.$username.' {releasePath}/ ; '
+				 . 'find {releasePath}/ -type d -exec chmod 775 {} \; ; '
+				 . 'find {releasePath}/ -type f \! \( -name commit-msg -or -name "*.sh" \) -exec chmod 664 {} \; ; '
+				 . 'chmod 770 {releasePath}/flow ; '
+				 . 'chmod 755 {releasePath}/Web ; '
+				 . 'chmod 644 {releasePath}/Web/index.php ; '
+				 . 'chmod 644 {releasePath}/Web/.htaccess ; '
+				 . 'chown -R '.$username.':'.$username.' {releasePath}/Web/_Resources ; '
+				 . 'chmod 775 {releasePath}/Web/_Resources;'
+));
+$workflow->beforeTask('typo3.surf:symlinkrelease', $projectKey.':repairpermissions');
 
 // Kill running PHP processes.
 $workflow->defineTask($projectKey.':killphp', 'typo3.surf:shell', array(
