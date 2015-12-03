@@ -4,6 +4,7 @@ $domain          = '';      // domain.com
 $username        = '';      // username
 $hostname        = '';      // e.g. server.uberspace.de not username.server.uberspace.de
 $sitePackageKey  = '';      // Vendor.ThemePackage
+$copyWebroot     = 'Sites/'.$sitePackageKey; // For Files who should copied to the Webroot (e.g. Favicons)
 $setFlowRootpath = false;   // enable if you get internal server erros
 $copyPackages    = array(   // the packages that are not managed by composer
 	'Plugins' => array(  ),
@@ -73,7 +74,7 @@ $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array
 				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/;'
 				 . 'cp -f '.FLOW_PATH_ROOT.'Web/.htaccess '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/.htaccess;'
 				 . 'cp -f '.FLOW_PATH_ROOT.'Web/robots.txt '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/robots.txt;'
-				 . 'rsync -a --ignore-errors '.FLOW_PATH_ROOT.'Packages/Sites/'.$sitePackageKey.'/Resources/Private/WebRoot/* '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
+				 . 'rsync -a --ignore-errors '.FLOW_PATH_ROOT.'Packages/'.$copyWebroot.'/Resources/Private/WebRoot/* '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
 				 . 'rsync -a --exclude=index.php --exclude=_Resources --exclude=robots.txt '.FLOW_PATH_ROOT.'Web/* '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
 				 . $addPackages
 ));
