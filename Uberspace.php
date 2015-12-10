@@ -16,10 +16,10 @@ $copyPackages    = array(   // the packages that are not managed by composer
 // At nine.ch: sudo nine-manage-vhosts virtual-host update [domain] --webroot=/home/www-data/[deploymentFolder]/release/current/Web
 
 $deploymentName = 'Uberspace';
-$deploymentPath = '/var/www/virtual/'.$username.'/'.$domain;
 $hostname       = $username.'.'.$hostname;
 $domain         = $domain.'.surf';
 $projectKey     = preg_replace("/[^a-zA-Z0-9]+/", "", $domain);
+$deploymentPath = '/var/www/virtual/'.$username.'/'.$domain;
 
 // ------------------------------------------------------------------
 
