@@ -71,7 +71,6 @@ $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array
 				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Sites;'
 				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/;'
 				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/;'
-				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web;'
 				 . 'rsync -a --exclude=.DS_Store '.FLOW_PATH_ROOT.'Packages/'.$copyWebroot.'/Resources/Private/WebRoot/ '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
 				 . $addPackages
 ));
