@@ -67,7 +67,7 @@ foreach ($copyPackages as $folder => $packages) {
 }
 $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array(
 	'command' => $removePackages
-				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Plugins;'
+				// . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Plugins;'
 				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Sites;'
 				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/;'
 				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/;'
@@ -116,7 +116,7 @@ $node->setOption('username', $username);
 // Define your application and add it to your node.
 $application = new \TYPO3\Surf\Application\TYPO3\Flow($domain);
 $application->setDeploymentPath($deploymentPath);
-$application->setOption('repositoryUrl', 'https://git.typo3.org/Neos/Distributions/Base.git');
+$application->setOption('repositoryUrl', 'https://github.com/neos/neos-base-distribution.git');
 $application->setOption('composerCommandPath', 'composer');
 $application->setOption('keepReleases', '5');
 
