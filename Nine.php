@@ -44,7 +44,6 @@ $workflow->afterTask('typo3.surf:typo3:flow:migrate', $projectKey.':publishImage
 // Create and configure a simple shell task to add the FLOW_CONTEXT and FLOW_ROOTPATH to your .htaccess file
 $workflow->defineTask($projectKey.':editHtaccess', 'typo3.surf:shell', array(
 	'command' => 'echo -e "\n'
-				 . 'SetEnv FLOW_CONTEXT Production \n'
 				 . ($setFlowRootpath?'SetEnv FLOW_ROOTPATH {deploymentPath}/releases/current/ \n':'')
 				 . '" >> {releasePath}/Web/.htaccess'
 ));
@@ -68,14 +67,11 @@ foreach ($copyPackages as $folder => $packages) {
 }
 $workflow->defineTask($projectKey.':injectfiles', 'typo3.surf:localshell', array(
 	'command' => $removePackages
-				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Plugins;'
+				// . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Plugins;'
 				 . 'rm -rf '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/Sites;'
 				 . 'mkdir -p '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Packages/;'
 				 . 'cp -Lr '.FLOW_PATH_ROOT.'Configuration '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/;'
-				 . 'cp -f '.FLOW_PATH_ROOT.'Web/.htaccess '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/.htaccess;'
-				 . 'cp -f '.FLOW_PATH_ROOT.'Web/robots.txt '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/robots.txt;'
-				 . 'rsync -a --ignore-errors '.FLOW_PATH_ROOT.'Packages/'.$copyWebroot.'/Resources/Private/WebRoot/* '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
-				 . 'rsync -a --exclude=index.php --exclude=_Resources --exclude=robots.txt '.FLOW_PATH_ROOT.'Web/* '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
+				 . 'rsync -a --exclude=.DS_Store '.FLOW_PATH_ROOT.'Packages/'.$copyWebroot.'/Resources/Private/WebRoot/ '.FLOW_PATH_ROOT.'Data/Surf/'.$deploymentName.'/'.$domain.'/Web/;'
 				 . $addPackages
 ));
 $workflow->beforeTask('typo3.surf:transfer:rsync', $projectKey.':injectfiles');
@@ -120,7 +116,7 @@ $node->setOption('username', $username);
 // Define your application and add it to your node.
 $application = new \TYPO3\Surf\Application\TYPO3\Flow($domain);
 $application->setDeploymentPath($deploymentPath);
-$application->setOption('repositoryUrl', 'https://git.typo3.org/Neos/Distributions/Base.git');
+$application->setOption('repositoryUrl', 'https://github.com/neos/neos-base-distribution.git');
 $application->setOption('composerCommandPath', 'composer');
 $application->setOption('keepReleases', '5');
 
